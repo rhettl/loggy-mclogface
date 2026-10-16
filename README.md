@@ -1,23 +1,60 @@
 # Loggy McLogface
 
-A server troubleshooting mod named in the spirit of Boaty McBoatface.
-A future `/loggy report <target>` command will collect server evidence and registered
-mod diagnostics, then return a shareable mclo.gs link.
+A Fabric server troubleshooting mod named in the spirit of Boaty McBoatface.
+The public provider API is established; the command and reporting runtime is
+being integrated against the [implementation contract](docs/CONTRACT.md).
+Administrators use `/loggy list` to see registered targets and
+`/loggy report <target>` to prepare and upload a report; `minecraft`, each
+registered provider ID, and `all` are valid targets.
 
-## Current state: API baseline
+Loggy targets Java 21, Fabric, and Minecraft 1.21.1. The source repository is
+[`rhettl/loggy-mclogface`](https://github.com/rhettl/loggy-mclogface). Its public
+Maven coordinates are `io.github.rhettl:loggy-mclogface:<version>`; the initial
+release is not published yet while the reporting runtime is integrated.
 
-Java 21 / Fabric / Minecraft 1.21.1. This baseline supplies the public contributor
-API and registration lifecycle. **Commands, reports, uploads, and Crests integration
-are not implemented yet.** See [the contract](docs/CONTRACT.md) for assignments and
-acceptance gates.
+## Build and local Maven publication
 
-Build/test: `./gradlew build`. Optional local publication: `./gradlew publishToMavenLocal`.
-Coordinates: `io.github.rhettl:loggy-mclogface:0.1.0-SNAPSHOT`.
-Release delivery to `rhettl/maven` is not configured yet.
+```sh
+./gradlew build
+./gradlew publishToMavenLocal -Pmod_version=0.1.0-SNAPSHOT
+```
 
-## Register a provider
+For a plain Maven directory that can be inspected or used by another local
+checkout, run:
 
-Call during your mod's common initialization:
+```sh
+./gradlew publishMavenJavaPublicationToLocalMavenRepository -Pmod_version=0.1.0-SNAPSHOT
+```
+
+The local repository is written to `build/maven-repository/`. It contains the
+remapped runtime JAR, remapped sources JAR, and Maven POM. The check workflow
+builds and tests pull requests and release tags; a separate workflow handles
+publication.
+
+## Use Loggy from another Fabric mod
+
+Add the Maven repository that hosts Loggy, then use Loom's mod dependency and
+`include` configurations to put Loggy inside the parent mod:
+
+```kotlin
+repositories {
+    maven("https://rhettl.github.io/loggy-mclogface/")
+}
+
+dependencies {
+    val loggy = modImplementation("io.github.rhettl:loggy-mclogface:0.1.0")
+    include(loggy)
+}
+```
+
+Use the exact version you intend to ship. For local testing, replace the Maven
+URL with `mavenLocal()` and set `-Pmod_version=0.1.0-SNAPSHOT` when publishing.
+Nested Loggy includes its pinned mclo.gs API library. The runtime artifact
+excludes the library's Gson dependency and uses Minecraft 1.21.1's Gson 2.10.1.
+
+## Register a diagnostic provider
+
+Register during common initialization:
 
 ```java
 Loggy.register(new DiagnosticProvider() {
@@ -32,20 +69,40 @@ Loggy.register(new DiagnosticProvider() {
 });
 ```
 
-Types are in `io.github.rhettl.loggy.api`; `List` is `java.util.List`.
-Collection runs on the server thread: read bounded in-memory state only. Return
-plain text with no secrets. Never block, perform I/O, mutate Minecraft state, or
-retain the context. Registration closes when the first server starts. IDs are
-lowercase command-safe names; minecraft/all/list/report are reserved.
+Types are in `io.github.rhettl.loggy.api`; `List` is `java.util.List`. Collection
+runs on the server thread, so providers must read bounded in-memory state only.
+Return plain text without secrets. Do not block, perform I/O, mutate Minecraft
+state, or retain the context. Registration closes when the first server starts.
+IDs are lowercase command-safe names; `minecraft`, `all`, `list`, and `report`
+are reserved.
 
 The `internal` package and `Loggy.registry()` are implementation details, not a
-supported extension API. Parents will embed the runtime mod as a nested dependency;
-exact published consumption is a release/integration acceptance gate.
+supported extension API. See [the implementation contract](docs/CONTRACT.md)
+for the current behavior and acceptance requirements.
+
+## Maven releases
+
+The Maven repository is served from this project's `gh-pages` branch at
+`https://rhettl.github.io/loggy-mclogface/`. The first release has not been
+published yet. The workflow publishes `<base>-SNAPSHOT` from `main`, and a
+`vX.Y.Z` tag publishes that exact version. It also supports a manual run from
+`main` or a release tag. Existing release versions cause publication to fail;
+snapshots may be refreshed. The workflow preserves the branch's existing
+artifacts and metadata and serializes publication jobs so concurrent runs do
+not race. GitHub Pages must serve the `gh-pages` branch from its root.
+
+No cross-repository secret is needed. The workflow uses the repository's
+`GITHUB_TOKEN` with `contents:write` permission to update its own `gh-pages`
+branch. Pull request checks only build and test; they never publish. CI does not
+upload temporary build artifacts; published Maven files remain in the Pages
+branch as repository contents and do not expire after a day.
 
 ## Upstream acknowledgment
 
-Loggy is designed around the [mclogs-java](https://github.com/aternosorg/mclogs-java)
-API and [mclo.gs](https://mclo.gs) service. Foundational reference work comes from
-[Aternos' mclogs-integration](https://github.com/aternosorg/mclogs-integration).
-Loggy is independently maintained and is not affiliated with or endorsed by Aternos.
-See [third-party notices](THIRD-PARTY-NOTICES.md).
+Loggy uses the [mclogs-java API](https://github.com/aternosorg/mclogs-java) and
+uploads reports to the [mclo.gs service](https://mclo.gs). The
+[mclogs-integration project](https://github.com/aternosorg/mclogs-integration)
+is also acknowledged as a reference. Loggy is independently maintained and is
+not affiliated with or endorsed by Aternos. See
+[third-party notices](THIRD-PARTY-NOTICES.md) for the distributed library's
+license and provenance.

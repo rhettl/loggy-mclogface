@@ -47,7 +47,8 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             artifactId = "loggy-mclogface"
-            from(components["java"])
+            artifact(tasks.named("remapJar"))
+            artifact(tasks.named("remapSourcesJar"))
             pom {
                 name.set("Loggy McLogface")
                 description.set("Server troubleshooting reports with registered mod diagnostics")
@@ -58,12 +59,10 @@ publishing {
     }
     repositories {
         mavenLocal()
-        // A local plain Maven layout for consumers and packaging verification.
-        // Cross-repository publishing is intentionally absent until its destination
-        // and write credentials are confirmed.
+        // A plain Maven layout for local consumer checks and the guarded release job.
         maven {
             name = "LocalMaven"
-            url = uri(layout.buildDirectory.dir("maven-repository"))
+            url = uri(findProperty("mavenRepositoryDir") ?: layout.buildDirectory.dir("maven-repository"))
         }
     }
 }

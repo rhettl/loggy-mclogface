@@ -203,17 +203,23 @@ Credit Aternos/mclo.gs in README, link upstream projects/site, and retain full M
 notices for dependencies and copied/adapted code. Record copied-file provenance
 (repository, commit, modifications) in THIRD-PARTY-NOTICES.md. Do not imply endorsement.
 
-Destination is the user's `rhettl/maven` repository. Inspect its actual layout and
-publication mechanism before implementing delivery. The local sibling
-`../owo-dark-ui` demonstrates Java 21, nested consumption, and directory-based Maven
-publication, but its workflow publishes to its own gh-pages branch: do not copy
-that destination or assume GITHUB_TOKEN can write another repository.
+Maven delivery uses this project's own `gh-pages` branch, served from the root at
+`https://rhettl.github.io/loggy-mclogface/`. The initially requested shared
+`rhettl/maven` repository could not be resolved; the destination was clarified to
+this project-specific Pages repository, following the established
+`../owo-dark-ui` directory-based Maven convention.
 
-PR checks run build/tests without publishing. Release tags `vX.Y.Z` publish that
-exact immutable version; main may publish `<base>-SNAPSHOT` using established Maven
-repository conventions. One serialized publisher writes the shared destination;
-preserve all existing artifacts and metadata. Document required cross-repository
-credentials by name, never their values. Never overwrite an existing release.
+PR checks run build/tests without publishing. A push to main publishes
+`<base>-SNAPSHOT`; release tags `vX.Y.Z` publish that exact immutable version.
+Manual publication is allowed from main or a version tag. One serialized publisher
+writes the project's Pages branch, preserves all existing artifacts and metadata,
+and fails if the release version already exists. `GITHUB_TOKEN` needs
+`contents:write` permission for this repository; no cross-repository credential
+or secret value is needed. GitHub Pages must serve the `gh-pages` branch from its
+root. CI does not upload temporary build artifacts. If such uploads are added
+later, set their retention to one day; published Maven files remain as repository
+contents and are not subject to Actions artifact retention. Never overwrite an
+existing release.
 
 ## Acceptance gates
 
@@ -228,7 +234,8 @@ credentials by name, never their values. Never overwrite an existing release.
 - Packaging: Crests alone embeds Loggy; two parents embedding the same version load
   one Loggy instance; differing compatible embedded versions resolve predictably;
   an incompatible combination fails clearly. No client-required classes on server.
-- Publication: clean consumer resolves the exact released version from rhettl/maven;
+- Publication: clean consumer resolves the exact released version from
+  `https://rhettl.github.io/loggy-mclogface/`;
   no mavenLocal, sibling checkout, unpublished artifact, or developer cache required.
 - Handoff: source repo, issue/PR links, commits/tags, public API guide, coordinates,
   Maven URL, workflow setup, test evidence, remaining limitations, and Crests
