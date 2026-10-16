@@ -27,7 +27,12 @@ single-player's integrated server:
 `list` describes the registered targets without collecting or uploading anything.
 `report` collects built-in environment evidence, the requested providers, and the
 current instance's `latest.log`, then saves prepared text in `logs/loggy/` and
-uploads it to mclo.gs. The response offers open/copy link actions. Single-player's
+uploads it to mclo.gs. When Loggy is installed on the requesting player's client, the report link is
+automatically copied to that player's clipboard, with a chat confirmation. The
+response keeps local-copy information on its first line, followed by the clickable
+report URL and `[copy]` at the end of its second line. These manual actions remain
+available to other clients and console use. Only
+validated mclo.gs share links are accepted by the optional client receiver. Single-player's
 process log may contain both client and server messages. The ten newest saved
 reports are retained. Log/report truncation is identified in the report.
 

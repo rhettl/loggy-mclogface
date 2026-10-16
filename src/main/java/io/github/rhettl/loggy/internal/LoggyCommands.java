@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.HoverEvent;
 import net.minecraft.server.MinecraftServer;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -181,16 +182,27 @@ public final class LoggyCommands {
     }
 
     private static void completeUpload(MinecraftServer server, CommandSourceStack source, String url, String path) {
-        dispatch(server, source, () -> Component.empty()
-                .append(Component.literal("Loggy report uploaded: "))
+        dispatch(server, source, () -> {
+            // Notify only the player who requested this report, never the console's
+            // or dedicated server host's clipboard. Older/vanilla clients use [copy].
+            var player = source.getPlayer();
+            if (player != null && ServerPlayNetworking.canSend(player, ReportReadyPayload.TYPE)) {
+                try {
+                    ServerPlayNetworking.send(player, new ReportReadyPayload(url));
+                } catch (RuntimeException notificationFailure) {
+                    LOGGER.debug("Could not send Loggy clipboard notification", notificationFailure);
+                }
+            }
+            return Component.empty()
+                .append(Component.literal("Loggy report uploaded." + path + "\n"))
                 .append(Component.literal(url).withStyle(style -> style
                         .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url))
                         .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Open report")))))
                 .append(Component.literal(" "))
                 .append(Component.literal("[copy]").withStyle(style -> style
                         .withClickEvent(new ClickEvent(ClickEvent.Action.COPY_TO_CLIPBOARD, url))
-                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Copy report link")))))
-                .append(Component.literal(path)));
+                        .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.literal("Copy report link")))));
+        });
     }
 
     private static void dispatch(MinecraftServer server, CommandSourceStack source,
