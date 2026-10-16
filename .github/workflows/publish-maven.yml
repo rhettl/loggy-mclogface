@@ -1,0 +1,100 @@
+name: Publish Maven repository
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: loggy-maven-pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Determine Maven version
+        id: version
+        shell: bash
+        run: |
+          BASE_VERSION="$(awk -F= '$1 == "mod_version" {print $2}' gradle.properties)"
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            [[ "$GITHUB_REF_NAME" =~ ^v([0-9]+\.[0-9]+\.[0-9]+)$ ]] || {
+              echo "Release tags must use vX.Y.Z" >&2
+              exit 1
+            }
+            VERSION="${BASH_REMATCH[1]}"
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          else
+            [[ "$GITHUB_REF" == refs/heads/main ]] || {
+              echo "Manual publication is allowed only from main or a vX.Y.Z tag." >&2
+              exit 1
+            }
+            VERSION="${BASE_VERSION}-SNAPSHOT"
+            echo "release=false" >> "$GITHUB_OUTPUT"
+          fi
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Check out or initialize this repository's gh-pages branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
+        run: |
+          REMOTE="https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git ls-remote --exit-code --heads "$REMOTE" gh-pages >/dev/null; then
+            git clone --depth 1 --branch gh-pages "$REMOTE" pages
+          else
+            git init --initial-branch=gh-pages pages
+            git -C pages remote add origin "$REMOTE"
+          fi
+          touch pages/.nojekyll
+
+      - name: Build and publish without replacing a release
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          IS_RELEASE: ${{ steps.version.outputs.release }}
+        shell: bash
+        run: |
+          GROUP_PATH="$(awk -F= '$1 == "maven_group" {print $2}' gradle.properties | tr '.' '/')"
+          ARTIFACT_PATH="pages/${GROUP_PATH}/loggy-mclogface/${VERSION}"
+          if [[ "$IS_RELEASE" == "true" && -e "$ARTIFACT_PATH" ]]; then
+            echo "Release $VERSION already exists in this Maven repository; releases are immutable." >&2
+            exit 1
+          fi
+
+          ./gradlew build publishMavenJavaPublicationToLocalMavenRepository \
+            -Pmod_version="$VERSION" \
+            -PmavenRepositoryDir="$GITHUB_WORKSPACE/pages"
+
+          cat > pages/index.html <<'EOF'
+          <!doctype html>
+          <meta charset="utf-8">
+          <title>Loggy McLogface Maven</title>
+          <h1>Loggy McLogface Maven repository</h1>
+          <p>Repository: <code>https://rhettl.github.io/loggy-mclogface/</code></p>
+          <p>Gradle: <code>maven("https://rhettl.github.io/loggy-mclogface/")</code></p>
+          <p>Source: <a href="https://github.com/rhettl/loggy-mclogface">rhettl/loggy-mclogface</a></p>
+          EOF
+
+          git -C pages config user.name "github-actions[bot]"
+          git -C pages config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git -C pages add -A
+          if git -C pages diff --cached --quiet; then
+            echo "Maven repository is already up to date."
+            exit 0
+          fi
+          git -C pages commit -m "Publish Loggy $VERSION from ${GITHUB_SHA::7}"
+          git -C pages push origin gh-pages

@@ -1,12 +1,17 @@
 package io.github.rhettl.loggy;
 
-import io.github.rhettl.loggy.api.Loggy;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import io.github.rhettl.loggy.internal.LoggyCommands;
+import io.github.rhettl.loggy.api.Loggy;
 
-/** API baseline only; runtime reporting is the next implementation assignment. */
+/** Loggy runtime entrypoint. */
 public final class LoggyMod implements ModInitializer {
     @Override public void onInitialize() {
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
+                LoggyCommands.register(dispatcher));
         ServerLifecycleEvents.SERVER_STARTING.register(server -> Loggy.registry().freeze());
+        ServerLifecycleEvents.SERVER_STOPPING.register(LoggyCommands::serverStopping);
     }
 }

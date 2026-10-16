@@ -19,6 +19,13 @@ dependencies {
     mappings(loom.officialMojangMappings())
     modImplementation("net.fabricmc:fabric-loader:${property("loader_version")}")
     modImplementation("net.fabricmc.fabric-api:fabric-api:${property("fabric_version")}")
+
+    // Nested into Loggy's remapped runtime jar. Minecraft 1.21.1 supplies Gson 2.10.1;
+    // mclogs-java's only runtime dependency is Gson 2.12.1, so keep that second Gson out.
+    val mclogsApi = implementation("gs.mclo:api:${property("mclogs_version")}") {
+        exclude(group = "com.google.code.gson", module = "gson")
+    }
+    include(mclogsApi)
     testImplementation("org.junit.jupiter:junit-jupiter:${property("junit_version")}")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
@@ -34,12 +41,14 @@ tasks.processResources {
 }
 tasks.jar {
     from("LICENSE") { rename { "LICENSE_loggy-mclogface" } }
+    from("THIRD-PARTY-NOTICES.md")
 }
 publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             artifactId = "loggy-mclogface"
-            from(components["java"])
+            artifact(tasks.named("remapJar"))
+            artifact(tasks.named("remapSourcesJar"))
             pom {
                 name.set("Loggy McLogface")
                 description.set("Server troubleshooting reports with registered mod diagnostics")
@@ -48,6 +57,12 @@ publishing {
             }
         }
     }
-    // Cross-repository delivery to rhettl/maven is the release worker's assignment.
-    repositories { mavenLocal() }
+    repositories {
+        mavenLocal()
+        // A plain Maven layout for local consumer checks and the guarded release job.
+        maven {
+            name = "LocalMaven"
+            url = uri(findProperty("mavenRepositoryDir") ?: layout.buildDirectory.dir("maven-repository"))
+        }
+    }
 }
