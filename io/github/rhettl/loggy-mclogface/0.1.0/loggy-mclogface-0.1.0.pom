@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>io.github.rhettl</groupId>
+  <artifactId>loggy-mclogface</artifactId>
+  <version>0.1.0</version>
+  <name>Loggy McLogface</name>
+  <description>Server troubleshooting reports with registered mod diagnostics</description>
+  <url>https://github.com/rhettl/loggy-mclogface</url>
+  <licenses>
+    <license>
+      <name>MIT</name>
+      <url>https://opensource.org/license/mit</url>
+    </license>
+  </licenses>
+</project>
