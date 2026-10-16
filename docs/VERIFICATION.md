@@ -43,3 +43,16 @@ exclusion alongside Loom's remapped/nested artifacts.
 that instantiates MclogsClient and initializes Loggy's gateway without unpacking
 nested libraries or making network requests. The consumer supplies Minecraft's
 Gson 2.10.1; it must resolve mclogs-java transitively from Loggy's publication.
+
+## 0.1.2 optional clipboard companion
+
+Successful report completion sends a validated mclo.gs share link only to the
+initiating player when their client advertises the receiver. The client copies
+it on its own thread and confirms in chat; console and clients without Loggy
+retain manual link/copy actions. Codec tests cover roundtrip and invalid URL
+rejection. Client classes live in the client source set and client entrypoint;
+common/server code never accesses the server host's clipboard.
+
+Manual checks: auto-copy after `/loggy report ...` and Crests aliases in integrated
+and multiplayer sessions; server-only Loggy with an unmodified client; clipboard
+failure retains manual copy. These were not established by JVM tests.

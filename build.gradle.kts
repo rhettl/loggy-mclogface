@@ -13,7 +13,16 @@ architectury {
     platformSetupLoomIde()
     fabric()
 }
-loom { silentMojangMappingsLicense() }
+loom {
+    silentMojangMappingsLicense()
+    splitEnvironmentSourceSets()
+    mods {
+        create("loggy") {
+            sourceSet(sourceSets["main"])
+            sourceSet(sourceSets["client"])
+        }
+    }
+}
 repositories { mavenCentral() }
 dependencies {
     minecraft("com.mojang:minecraft:${property("minecraft_version")}")
@@ -29,6 +38,9 @@ dependencies {
     include(mclogsApi)
     testImplementation("org.junit.jupiter:junit-jupiter:${property("junit_version")}")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+afterEvaluate {
+    dependencies { "clientImplementation"(sourceSets["main"].output) }
 }
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(21))

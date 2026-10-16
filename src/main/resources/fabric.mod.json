@@ -11,6 +11,9 @@
   },
   "license": "MIT",
   "environment": "*",
-  "entrypoints": {"main": ["io.github.rhettl.loggy.LoggyMod"]},
+  "entrypoints": {
+    "main": ["io.github.rhettl.loggy.LoggyMod"],
+    "client": ["io.github.rhettl.loggy.client.LoggyClient"]
+  },
   "depends": {"fabricloader": ">=0.18.0", "minecraft": "~1.21.1", "java": ">=21", "fabric-api": "*"}
 }
