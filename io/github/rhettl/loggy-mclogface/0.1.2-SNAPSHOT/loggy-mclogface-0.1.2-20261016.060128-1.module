@@ -1,0 +1,109 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "io.github.rhettl",
+    "module": "loggy-mclogface",
+    "version": "0.1.2-SNAPSHOT",
+    "attributes": {
+      "org.gradle.status": "integration"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.14.3"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 21,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api"
+      },
+      "files": [
+        {
+          "name": "loggy-mclogface-0.1.2-SNAPSHOT.jar",
+          "url": "loggy-mclogface-0.1.2-SNAPSHOT.jar",
+          "size": 131373,
+          "sha512": "71cab052b64acb4432e0a25fddf0e0daa4caeda7f9f3640fe443bf38a2a51dfdbba6f6334d90b87e75bd629e6027751e516feda3328b1f0960103ff8afc39b7f",
+          "sha256": "38fb009f521b37caa3dcd8f0e7b9d0545da23a7e7e8de2b7f94c22e5118d9906",
+          "sha1": "ef3e503acf7aff41de8b35cca5439be8e6b67b7a",
+          "md5": "d254819d4a507327d0a06381e294b9c5"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 21,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "gs.mclo",
+          "module": "api",
+          "version": {
+            "requires": "6.2.1"
+          },
+          "excludes": [
+            {
+              "group": "com.google.code.gson",
+              "module": "gson"
+            }
+          ]
+        },
+        {
+          "group": "net.fabricmc",
+          "module": "fabric-loader",
+          "version": {
+            "requires": "0.18.0"
+          }
+        },
+        {
+          "group": "net.fabricmc.fabric-api",
+          "module": "fabric-api",
+          "version": {
+            "requires": "0.116.9+1.21.1"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "loggy-mclogface-0.1.2-SNAPSHOT.jar",
+          "url": "loggy-mclogface-0.1.2-SNAPSHOT.jar",
+          "size": 131373,
+          "sha512": "71cab052b64acb4432e0a25fddf0e0daa4caeda7f9f3640fe443bf38a2a51dfdbba6f6334d90b87e75bd629e6027751e516feda3328b1f0960103ff8afc39b7f",
+          "sha256": "38fb009f521b37caa3dcd8f0e7b9d0545da23a7e7e8de2b7f94c22e5118d9906",
+          "sha1": "ef3e503acf7aff41de8b35cca5439be8e6b67b7a",
+          "md5": "d254819d4a507327d0a06381e294b9c5"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "loggy-mclogface-0.1.2-SNAPSHOT-sources.jar",
+          "url": "loggy-mclogface-0.1.2-SNAPSHOT-sources.jar",
+          "size": 25038,
+          "sha512": "87fc9e0cdc239594e76bf48bd60c033d03d174a6aed4c7337dd2c0de512edd76c985cc750c614cda30d9af8bbcdd9646d3f85283e7d71ea6b9894ad681523603",
+          "sha256": "e86075285f7528ec0c2c0f201f11bb12239d05319e41785382d935faf3a5f018",
+          "sha1": "5f4a0b809416ad3d66b6852b8dd47a6cb30b1623",
+          "md5": "b349b918f9e0e76ff3e99aba8086600b"
+        }
+      ]
+    }
+  ]
+}
