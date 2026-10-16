@@ -12,6 +12,30 @@ Loggy targets Java 21, Fabric, and Minecraft 1.21.1. The source repository is
 Maven coordinates are `io.github.rhettl:loggy-mclogface:<version>`; the initial
 release is not published yet while the reporting runtime is integrated.
 
+## Commands
+
+All commands require permission level 2 and operate on the current server, including
+single-player's integrated server:
+
+```text
+/loggy list
+/loggy report minecraft
+/loggy report crests
+/loggy report all
+```
+
+`list` describes the registered targets without collecting or uploading anything.
+`report` collects built-in environment evidence, the requested providers, and the
+current instance's `latest.log`, then saves prepared text in `logs/loggy/` and
+uploads it to mclo.gs. The response offers open/copy link actions. Single-player's
+process log may contain both client and server messages. The ten newest saved
+reports are retained. Log/report truncation is identified in the report.
+
+Uploads require successful retrieval of the service's filters and limits; if these
+cannot be verified, Loggy saves a locally redacted fallback and skips upload. No
+report is collected or uploaded without a command. Review what your providers
+include: redaction cannot guarantee removal of arbitrary secrets.
+
 ## Build and local Maven publication
 
 ```sh
