@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "loggy",
+  "version": "${version}",
+  "name": "Loggy McLogface",
+  "description": "Server troubleshooting reports and registered mod diagnostics.",
+  "authors": ["RhettL"],
+  "contact": {
+    "sources": "https://github.com/rhettl/loggy-mclogface",
+    "issues": "https://github.com/rhettl/loggy-mclogface/issues"
+  },
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {"main": ["io.github.rhettl.loggy.LoggyMod"]},
+  "depends": {"fabricloader": ">=0.18.0", "minecraft": "~1.21.1", "java": ">=21", "fabric-api": "*"}
+}
