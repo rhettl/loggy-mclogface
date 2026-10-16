@@ -30,3 +30,16 @@ Date: 2026-10-15. These are completed checks, not claims of game-runtime coverag
 Loggy intentionally pins internal mclogs FilterList/RequestBuilder APIs to combine
 library filters/compression with configurable HTTP deadlines. Dependency upgrades
 must rerun gateway/filter compatibility tests and a synthetic live smoke.
+
+## 0.1.1 publication regression
+
+In-game development reporting exposed a missing `gs.mclo.api.MclogsClient` class
+with 0.1.0. Its manually constructed Maven publication included the nested JAR but
+omitted the Java component's runtime dependency metadata. Version 0.1.1 publishes
+from that component, preserving transitive runtime dependencies and the Gson
+exclusion alongside Loom's remapped/nested artifacts.
+
+`check` now publishes into a local Maven layout and runs a separate Gradle consumer
+that instantiates MclogsClient and initializes Loggy's gateway without unpacking
+nested libraries or making network requests. The consumer supplies Minecraft's
+Gson 2.10.1; it must resolve mclogs-java transitively from Loggy's publication.

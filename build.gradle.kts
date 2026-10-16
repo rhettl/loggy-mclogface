@@ -7,6 +7,7 @@ plugins {
 group = property("maven_group") as String
 version = property("mod_version") as String
 base.archivesName.set("loggy-mclogface")
+val localPublicationRepository = uri(findProperty("mavenRepositoryDir") ?: layout.buildDirectory.dir("maven-repository"))
 
 architectury {
     platformSetupLoomIde()
@@ -47,8 +48,9 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             artifactId = "loggy-mclogface"
-            artifact(tasks.named("remapJar"))
-            artifact(tasks.named("remapSourcesJar"))
+            // Export runtime dependencies as well as Loom's remapped artifacts.
+            // Hand-listing artifacts drops the component's POM/Gradle dependency metadata.
+            from(components["java"])
             pom {
                 name.set("Loggy McLogface")
                 description.set("Server troubleshooting reports with registered mod diagnostics")
@@ -62,7 +64,19 @@ publishing {
         // A plain Maven layout for local consumer checks and the guarded release job.
         maven {
             name = "LocalMaven"
-            url = uri(findProperty("mavenRepositoryDir") ?: layout.buildDirectory.dir("maven-repository"))
+            url = localPublicationRepository
         }
     }
 }
+
+// A published nested JAR can be correct while its consumer's dev classpath is broken.
+// Exercise dependency resolution from a separate Gradle build, not this project's dependencies.
+val verifyPublishedConsumer by tasks.registering(Exec::class) {
+    group = "verification"
+    description = "Loads Loggy and mclo.gs through the published Maven dependency graph"
+    dependsOn("publishMavenJavaPublicationToLocalMavenRepository")
+    commandLine(file("gradlew").absolutePath, "--no-daemon", "-p",
+        file("verification/consumer").absolutePath, "run", "--quiet",
+        "-PloggyVersion=${project.version}", "-PloggyRepository=$localPublicationRepository")
+}
+tasks.check { dependsOn(verifyPublishedConsumer) }

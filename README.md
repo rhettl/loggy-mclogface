@@ -36,6 +36,10 @@ cannot be verified, Loggy saves a locally redacted fallback and skips upload. No
 report is collected or uploaded without a command. Review what your providers
 include: redaction cannot guarantee removal of arbitrary secrets.
 
+Version 0.1.1 fixes development-classpath dependency metadata missing in 0.1.0.
+The build checks a separate Maven consumer in addition to the unit suite, so a
+correct nested JAR alone cannot satisfy the publication check.
+
 ## Build and local Maven publication
 
 ```sh
