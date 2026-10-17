@@ -6,3 +6,6 @@ out/
 run/
 logs/
 .DS_Store
+
+# Local AI/dev notes
+dev-docs/
