@@ -92,8 +92,11 @@ constructors validate nulls and defensively copy lists. Plain text only: no chat
 components, formatting codes, paths-to-upload, mutable Minecraft objects, arbitrary
 serialized objects, or provider-controlled network requests in returned reports.
 
-Provider identity is a lowercase command-safe ID matching `[a-z][a-z0-9_-]*`.
-IDs `minecraft`, `all`, `list`, and `report` are reserved for Loggy. Invalid or
+Provider identity is a lowercase command-safe ID matching `segment` or
+`segment:segment`, where `segment` is `[a-z][a-z0-9_-]*`. At most one `:` separates
+an optional namespace from the provider name (for example `bca` and `bca:crests`);
+IDs are always selected by exact match, with no wildcard or namespace grouping. The
+whole ID is compared with the reserved names. IDs `minecraft`, `all`, `list`, and `report` are reserved for Loggy. Invalid or
 duplicate registration throws a descriptive IllegalArgumentException; retain the
 first registration. Provider metadata is validated and captured at registration.
 

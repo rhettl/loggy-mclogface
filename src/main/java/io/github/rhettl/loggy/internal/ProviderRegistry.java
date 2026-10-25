@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
 
 /** Process-scoped registry. All metadata is captured once, before server startup. */
 public final class ProviderRegistry {
-    private static final Pattern ID = Pattern.compile("[a-z][a-z0-9_-]*");
+    private static final Pattern ID = Pattern.compile("[a-z][a-z0-9_-]*(:[a-z][a-z0-9_-]*)?");
     private static final Set<String> RESERVED = Set.of("minecraft", "all", "list", "report");
     private final Map<String, Registration> providers = new TreeMap<>();
     private boolean frozen;

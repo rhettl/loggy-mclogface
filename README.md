@@ -41,6 +41,7 @@ cannot be verified, Loggy saves a locally redacted fallback and skips upload. No
 report is collected or uploaded without a command. Review what your providers
 include: redaction cannot guarantee removal of arbitrary secrets.
 
+Version 0.2.0 adds namespaced provider IDs with a single `:` separator.
 Version 0.1.1 fixes development-classpath dependency metadata missing in 0.1.0.
 The build checks a separate Maven consumer in addition to the unit suite, so a
 correct nested JAR alone cannot satisfy the publication check.
@@ -107,7 +108,11 @@ runs on the server thread, so providers must read bounded in-memory state only.
 Return plain text without secrets. Do not block, perform I/O, mutate Minecraft
 state, or retain the context. Registration closes when the first server starts.
 IDs are lowercase command-safe names; `minecraft`, `all`, `list`, and `report`
-are reserved.
+are reserved. Since 0.2.0 an ID may carry one namespace, written `namespace:name`
+(for example `bca` and `bca:crests` are distinct providers). Each segment matches
+`[a-z][a-z0-9_-]*`; empty segments and more than one `:` are rejected. Targets are
+selected by exact ID, as in `/loggy report bca:crests`; wildcard selectors such as
+`bca:*` are not supported.
 
 The `internal` package and `Loggy.registry()` are implementation details, not a
 supported extension API. See [the implementation contract](docs/CONTRACT.md)
