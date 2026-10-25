@@ -1,22 +1,25 @@
 package io.github.rhettl.loggy.internal;
 
-import com.mojang.brigadier.StringReader;
-import com.mojang.brigadier.arguments.ArgumentType;
+import com.mojang.brigadier.LiteralMessage;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 
-/** Single-token report target that, unlike Brigadier's word(), also accepts the ':' namespace separator. */
-final class ReportTargetArgument implements ArgumentType<String> {
-    static ReportTargetArgument target() { return new ReportTargetArgument(); }
+/** Namespaced targets with vanilla command-tree serialization, including clients without Loggy. */
+final class ReportTargetArgument {
+    private static final SimpleCommandExceptionType INVALID_TARGET =
+            new SimpleCommandExceptionType(new LiteralMessage("Expected a single Loggy report target"));
 
-    static String getTarget(CommandContext<?> context, String name) { return context.getArgument(name, String.class); }
+    private ReportTargetArgument() {}
 
-    @Override public String parse(StringReader reader) {
-        int start = reader.getCursor();
-        while (reader.canRead() && isAllowed(reader.peek())) reader.skip();
-        return reader.getString().substring(start, reader.getCursor());
-    }
+    // word() rejects ':'. greedyString() accepts it and has a built-in Minecraft serializer.
+    // This argument is terminal; validate one token before any report handler executes.
+    static StringArgumentType target() { return StringArgumentType.greedyString(); }
 
-    private static boolean isAllowed(char c) {
-        return c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || c == '_' || c == '-' || c == ':';
+    static String getTarget(CommandContext<?> context, String name) throws CommandSyntaxException {
+        String target = StringArgumentType.getString(context, name);
+        if (!target.matches("[a-zA-Z0-9_:-]+")) throw INVALID_TARGET.create();
+        return target;
     }
 }

@@ -67,3 +67,17 @@ dispatcher, and a test shows the stock `word()` argument cannot parse `:`.
 
 Manual check, not established by JVM tests: tab-completion and execution of
 `/loggy report bca:crests` in a running server with a namespaced provider registered.
+
+## 0.2.1 command-tree synchronization fix
+
+The 0.2.0 custom ReportTargetArgument lacked Minecraft serialization registration,
+causing ClientboundCommandsPacket construction to throw during player login. Targets
+now use vanilla StringArgumentType.greedyString() with single-token validation before
+report execution. Namespaced targets still work; extra input remains rejected. No
+custom client argument registry is needed, including on clients without Loggy.
+
+Regression verification: the argument is a vanilla StringArgumentType, namespaced/plain
+targets execute unchanged, and extra input is rejected. The full build and published
+consumer check passed (47 JVM tests). BCA and Crests use the fixed sibling source build
+locally. Live client/server login verification remains pending. 0.2.0 must not be
+used: it fails player login. Use 0.2.1 or later.
