@@ -3,7 +3,7 @@
   <groupId>io.github.rhettl</groupId>
   <artifactId>loggy-mclogface</artifactId>
   <versioning>
-    <latest>0.1.2</latest>
+    <latest>0.2.0-SNAPSHOT</latest>
     <release>0.1.2</release>
     <versions>
       <version>0.1.0-SNAPSHOT</version>
@@ -12,7 +12,8 @@
       <version>0.1.1</version>
       <version>0.1.2-SNAPSHOT</version>
       <version>0.1.2</version>
+      <version>0.2.0-SNAPSHOT</version>
     </versions>
-    <lastUpdated>20261016060327</lastUpdated>
+    <lastUpdated>20261025024734</lastUpdated>
   </versioning>
 </metadata>
