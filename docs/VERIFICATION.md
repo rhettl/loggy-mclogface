@@ -56,3 +56,14 @@ common/server code never accesses the server host's clipboard.
 Manual checks: auto-copy after `/loggy report ...` and Crests aliases in integrated
 and multiplayer sessions; server-only Loggy with an unmodified client; clipboard
 failure retains manual copy. These were not established by JVM tests.
+
+## 0.2.0 namespaced provider IDs
+
+Provider IDs may be `segment` or `segment:segment`. Registry tests cover accepting
+`bca`, `bca:crests`, and `crests` together, duplicate rejection, and rejection of
+empty segments, repeated or leading/trailing `:`, `/`, `|`, uppercase, and
+digit-leading segments. `ReportTargetArgument` is parsed through a Brigadier
+dispatcher, and a test shows the stock `word()` argument cannot parse `:`.
+
+Manual check, not established by JVM tests: tab-completion and execution of
+`/loggy report bca:crests` in a running server with a namespaced provider registered.
