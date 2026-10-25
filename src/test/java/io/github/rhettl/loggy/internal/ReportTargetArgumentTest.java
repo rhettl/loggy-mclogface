@@ -18,6 +18,11 @@ class ReportTargetArgumentTest {
                         .executes(c -> { seen.add(ReportTargetArgument.getTarget(c, "target")); return 1; })));
     }
 
+    @Test void targetUsesVanillaArgumentSerializationForClientCommandSynchronization() {
+        assertInstanceOf(StringArgumentType.class, ReportTargetArgument.target(),
+                "The command tree must use a built-in argument understood by clients without Loggy");
+    }
+
     @Test void parsesNamespacedAndPlainTargetsUnchanged() throws CommandSyntaxException {
         dispatcher.execute("report bca:crests", new Object());
         dispatcher.execute("report cobble-crests", new Object());
