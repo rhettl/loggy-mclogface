@@ -35,9 +35,18 @@ class ProviderRegistryTest {
     }
 
     @ParameterizedTest @NullAndEmptySource
-    @ValueSource(strings = {"minecraft", "all", "list", "report", "UPPER", "a b", "1first", "namespace:id", " crests"})
+    @ValueSource(strings = {"minecraft", "all", "list", "report", "UPPER", "a b", "1first", " crests", "a::b", ":a", "a:", "a:b:c", "a:1b", "1a:b", "a:B", "a/b", "a|b", "bca:crests:x"})
     void rejectsInvalidOrReservedIds(String id) {
         assertThrows(IllegalArgumentException.class, () -> new ProviderRegistry().register(provider(id)));
+    }
+
+    @Test void acceptsNamespacedIdsAlongsideUnnamespacedOnes() {
+        var registry = new ProviderRegistry();
+        registry.register(provider("crests"));
+        registry.register(provider("bca:crests"));
+        registry.register(provider("bca"));
+        assertEquals(List.of("bca", "bca:crests", "crests"), registry.snapshot().stream().map(ProviderRegistry.Registration::id).toList());
+        assertThrows(IllegalArgumentException.class, () -> registry.register(provider("bca:crests")));
     }
 
     @Test void metadataIsCapturedOnce() {

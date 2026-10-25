@@ -1,7 +1,6 @@
 package io.github.rhettl.loggy.internal;
 
 import com.mojang.brigadier.CommandDispatcher;
-import com.mojang.brigadier.arguments.StringArgumentType;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.SharedSuggestionProvider;
@@ -45,9 +44,9 @@ public final class LoggyCommands {
         dispatcher.register(literal("loggy").requires(source -> source.hasPermission(2))
                 .executes(context -> usage(context.getSource()))
                 .then(literal("list").executes(context -> list(context.getSource())))
-                .then(literal("report").then(argument("target", StringArgumentType.word())
+                .then(literal("report").then(argument("target", ReportTargetArgument.target())
                         .suggests((context, builder) -> SharedSuggestionProvider.suggest(targetIds(), builder))
-                        .executes(context -> report(context.getSource(), StringArgumentType.getString(context, "target"))))));
+                        .executes(context -> report(context.getSource(), ReportTargetArgument.getTarget(context, "target"))))));
     }
 
     public static void serverStopping(MinecraftServer server) {
